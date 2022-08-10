@@ -1,11 +1,11 @@
 const faWeek = [
-  "Saturday",
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
+  "شنبه",
+  "یکشنبه",
+  "دوشنبه",
+  "سه‌شنبه",
+  "چهارشنبه",
+  "پنجشنبه",
+  "جمعه",
 ];
 
 const enWeek = [
@@ -35,22 +35,29 @@ function addMonth(months, date) {
   return dateObj;
 }
 
-function findFirstPerMonthDay(date) {
-  const dayOfMonth = date.toLocaleDateString("fa-IR", { day: "numeric" });
-  const enDayOfMonth = pNumStr2eInt(dayOfMonth);
-  return addDays(-enDayOfMonth + 1, date);
+function findFirstMonthDay(date, locale) {
+  const dayOfMonth = date.toLocaleDateString(locale, { day: "numeric" });
+  let firstDayOfMonth;
+
+  if (locale === "fa-IR") {
+    firstDayOfMonth = pNumStr2eInt(dayOfMonth);
+  } else {
+    firstDayOfMonth = parseInt(dayOfMonth);
+  }
+
+  return addDays(-firstDayOfMonth + 1, date);
 }
 
-function perMonthDays(date) {
-  const firstDay = findFirstPerMonthDay(date);
-  const monthFa = date.toLocaleDateString("fa-IR", { month: "numeric" });
+function monthDays(date, locale) {
+  const firstDay = findFirstMonthDay(date, locale);
+  const month = date.toLocaleDateString(locale, { month: "numeric" });
   const days = [];
 
   for (let i = 0; i < 32; i++) {
     const day = addDays(i, firstDay);
-    const everyMonth = day.toLocaleDateString("fa-IR", { month: "numeric" });
+    const everyMonth = day.toLocaleDateString(locale, { month: "numeric" });
 
-    if (monthFa === everyMonth) {
+    if (month === everyMonth) {
       days.push(day);
     }
   }
@@ -58,19 +65,21 @@ function perMonthDays(date) {
   return days;
 }
 
-function addNulls(dayArr, week) {
+function addNulls(dayArr, locale) {
+  const week = locale === "fa-IR" ? faWeek : enWeek;
+
   const daysArray = [...dayArr];
   const firstDay = dayArr[0];
   const lastDay = dayArr[dayArr.length - 1];
 
   const firstDayWeekday = week.indexOf(
-    firstDay.toLocaleDateString("en-US", {
+    firstDay.toLocaleDateString(locale, {
       weekday: "long",
     })
   );
 
   const lastDayWeekday = week.indexOf(
-    lastDay.toLocaleDateString("en-US", {
+    lastDay.toLocaleDateString(locale, {
       weekday: "long",
     })
   );
@@ -86,13 +95,40 @@ function addNulls(dayArr, week) {
   return daysArray;
 }
 
+function createMonthChanger(date, locale) {
+  const newDate = new Date(date);
+  const changerString = date.toLocaleDateString(locale, {
+    month: "long",
+    year: "numeric",
+  });
+
+  const monthChangerContainer = document.createElement("div");
+  monthChangerContainer.classList.add("month-changer");
+
+  monthChangerContainer.innerHTML = `
+  <img id="pre-month" src="public/back-p.png" style="width:30px; height:30px">
+  <h3>${changerString}</h3>
+  <img id="next-month" src="public/back-p.png" style="width:30px; height:30px">`;
+
+  const preMonth = monthChangerContainer.querySelector("#pre-month");
+  preMonth.addEventListener("click", () => {
+    createMonthChanger(addMonth(-1, newDate), locale);
+  });
+
+  const nextMonth = monthChangerContainer.querySelector("#next-month");
+  nextMonth.addEventListener("click", () => {
+    createMonthChanger(addMonth(1, newDate), locale);
+  });
+
+  return monthChangerContainer;
+}
+
 export {
   pNumStr2eInt,
   addDays,
   addMonth,
-  findFirstPerMonthDay,
-  perMonthDays,
+  findFirstMonthDay,
+  monthDays,
   addNulls,
-  faWeek,
-  enWeek,
+  createMonthChanger,
 };

@@ -22,11 +22,11 @@ const enShortWeek = ["Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat"];
 
 const faShortWeek = [
   "شنبه",
-  "1شنبه",
-  "2شنبه",
-  "3شنبه",
-  "4شنبه",
-  "5شنبه",
+  "۱شنبه",
+  "۲شنبه",
+  "۳شنبه",
+  "۴شنبه",
+  "۵شنبه",
   "جمعه",
 ];
 
@@ -105,7 +105,7 @@ function addNulls(dayArr, locale, week) {
   return daysArray;
 }
 
-function createMonthChanger(date, locale, parent) {
+function createMonthChanger(date, locale, parent, dateHandler) {
   const newDate = new Date(date);
   const changerString = date.toLocaleDateString(locale, {
     month: "long",
@@ -124,20 +124,20 @@ function createMonthChanger(date, locale, parent) {
   preMonth.addEventListener("click", () => {
     const preCalender = document.querySelector(".calender-container");
     preCalender.remove();
-    createCalender(addMonth(-1, newDate), locale, parent);
+    createCalender(addMonth(-1, newDate), locale, parent, dateHandler);
   });
 
   const nextMonth = monthChangerContainer.querySelector("#next-month");
   nextMonth.addEventListener("click", () => {
     const preCalender = document.querySelector(".calender-container");
     preCalender.remove();
-    createCalender(addMonth(1, newDate), locale, parent);
+    createCalender(addMonth(1, newDate), locale, parent, dateHandler);
   });
 
   return monthChangerContainer;
 }
 
-function createDates(daysArray, locale, week) {
+function createDates(daysArray, locale, week, dateHandler) {
   const direction = locale === "fa-IR" ? "rtl" : "ltr";
 
   const daysContainer = document.createElement("div");
@@ -162,9 +162,19 @@ function createDates(daysArray, locale, week) {
 
     if (day) {
       dayElem.dataset.date = day.toDateString();
+      dayElem.classList.add("active-day");
+
+      if (dateHandler) {
+        dayElem.addEventListener("click", dateHandler);
+      }
+
       if (today.toDateString() === day.toDateString()) {
         dayElem.classList.add("today");
       }
+    }
+
+    if (!day) {
+      dayElem.classList.add("empty-day");
     }
 
     daysContainer.append(dayElem);
@@ -173,7 +183,7 @@ function createDates(daysArray, locale, week) {
   return daysContainer;
 }
 
-function createCalender(date, locale, parent) {
+function createCalender(date, locale, parent, dateHandler) {
   const weekDayNames = locale === "fa-IR" ? [...faShortWeek] : [...enShortWeek];
 
   const week = locale === "fa-IR" ? faWeek : enWeek;
@@ -181,12 +191,17 @@ function createCalender(date, locale, parent) {
   const calenderContainer = document.createElement("div");
   calenderContainer.classList.add("calender-container");
 
-  const monthChanger = createMonthChanger(date, locale, parent);
+  const monthChanger = createMonthChanger(date, locale, parent, dateHandler);
   calenderContainer.append(monthChanger);
 
   const daysArray = monthDays(date, locale);
   const daysArrayWithNulls = addNulls(daysArray, locale, week);
-  const datesContainer = createDates(daysArrayWithNulls, locale, weekDayNames);
+  const datesContainer = createDates(
+    daysArrayWithNulls,
+    locale,
+    weekDayNames,
+    dateHandler
+  );
 
   calenderContainer.append(datesContainer);
 

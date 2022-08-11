@@ -15,7 +15,7 @@ body {
 .calender-container {
   display: flex;
   flex-direction: column;
-  max-width: 300px;
+  max-width: min(min-content, 300px);
   border: 1px solid red;
 }
 
@@ -35,4 +35,18 @@ body {
 
 .day {
   width: 30px;
+  height: 30px;
+  border-radius: 5px;
+}
+
+.today {
+  outline: 1px solid tomato;
+}
+
+.active-day:hover {
+  cursor: pointer;
+}
+
+.empty-day {
+  opacity: 0;
 }

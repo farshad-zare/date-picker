@@ -1,4 +1,7 @@
-import { monthDays, createMonthChanger } from "./utils";
+import "./style.css";
+import { createCalender } from "./utils";
 
+const locale = "fa-IR";
 const now = new Date();
-createMonthChanger(now, "en-US");
+const body = document.querySelector("body");
+createCalender(now, locale, body);

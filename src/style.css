@@ -11,3 +11,28 @@ body {
   min-height: 100vh;
   font-family: sans-serif;
 }
+
+.calender-container {
+  display: flex;
+  flex-direction: column;
+  max-width: 300px;
+  border: 1px solid red;
+}
+
+.month-changer {
+  display: flex;
+  width: 100%;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.days-container {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  place-items: center;
+  gap: 3px;
+}
+
+.day {
+  width: 30px;
+}

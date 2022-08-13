@@ -109,7 +109,7 @@ function addNulls(dayArr, locale, week) {
   return daysArray;
 }
 
-function createMonthChanger(date, locale, parent, dateHandler) {
+function createMonthChanger(date, locale, parent, dateHandler, specialDates) {
   const preArrow = document.createElementNS(
     "http://www.w3.org/2000/svg",
     "svg"
@@ -145,20 +145,32 @@ function createMonthChanger(date, locale, parent, dateHandler) {
   preMonth.addEventListener("click", () => {
     const preCalender = document.querySelector(".calender-container");
     preCalender.remove();
-    createCalender(addMonth(-1, newDate), locale, parent, dateHandler);
+    createCalender(
+      addMonth(-1, newDate),
+      locale,
+      parent,
+      dateHandler,
+      specialDates
+    );
   });
 
   const nextMonth = monthChangerContainer.querySelector("#next-month");
   nextMonth.addEventListener("click", () => {
     const preCalender = document.querySelector(".calender-container");
     preCalender.remove();
-    createCalender(addMonth(1, newDate), locale, parent, dateHandler);
+    createCalender(
+      addMonth(1, newDate),
+      locale,
+      parent,
+      dateHandler,
+      specialDates
+    );
   });
 
   return monthChangerContainer;
 }
 
-function createDates(daysArray, locale, week, dateHandler) {
+function createDates(daysArray, locale, week, dateHandler, specialDates) {
   const direction = locale === "fa-IR" ? "rtl" : "ltr";
 
   const daysContainer = document.createElement("div");
@@ -186,11 +198,33 @@ function createDates(daysArray, locale, week, dateHandler) {
       dayElem.classList.add("active-day");
 
       if (dateHandler) {
-        dayElem.addEventListener("click", dateHandler);
+        dayElem.addEventListener("click", (e) => {
+          dateHandler(e, day);
+        });
       }
 
       if (today.toDateString() === day.toDateString()) {
         dayElem.classList.add("today");
+      }
+
+      if (specialDates) {
+        for (const key in specialDates) {
+          if (typeof specialDates[key] === "string") {
+            const spd = new Date(specialDates[key]).toDateString();
+            if (spd === day.toDateString()) {
+              dayElem.classList.add(key);
+            }
+          }
+
+          if (typeof specialDates[key] === "object") {
+            specialDates[key].forEach((spdString) => {
+              const spd = new Date(spdString).toDateString();
+              if (spd === day.toDateString()) {
+                dayElem.classList.add(key);
+              }
+            });
+          }
+        }
       }
     }
 
@@ -204,7 +238,7 @@ function createDates(daysArray, locale, week, dateHandler) {
   return daysContainer;
 }
 
-function createCalender(date, locale, parent, dateHandler) {
+function createCalender(date, locale, parent, dateHandler, specialDates) {
   const weekDayNames = locale === "fa-IR" ? [...faShortWeek] : [...enShortWeek];
 
   const week = locale === "fa-IR" ? faWeek : enWeek;
@@ -212,7 +246,14 @@ function createCalender(date, locale, parent, dateHandler) {
   const calenderContainer = document.createElement("div");
   calenderContainer.classList.add("calender-container");
 
-  const monthChanger = createMonthChanger(date, locale, parent, dateHandler);
+  const monthChanger = createMonthChanger(
+    date,
+    locale,
+    parent,
+    dateHandler,
+    specialDates
+  );
+
   calenderContainer.append(monthChanger);
 
   const daysArray = monthDays(date, locale);
@@ -221,7 +262,8 @@ function createCalender(date, locale, parent, dateHandler) {
     daysArrayWithNulls,
     locale,
     weekDayNames,
-    dateHandler
+    dateHandler,
+    specialDates
   );
 
   calenderContainer.append(datesContainer);

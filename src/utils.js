@@ -30,6 +30,10 @@ const faShortWeek = [
   "جمعه",
 ];
 
+const leftArrowString = `<path d="M256 504C119 504 8 393 8 256S119 8 256 8s248 111 248 248-111 248-248 248zM142.1 273l135.5 135.5c9.4 9.4 24.6 9.4 33.9 0l17-17c9.4-9.4 9.4-24.6 0-33.9L226.9 256l101.6-101.6c9.4-9.4 9.4-24.6 0-33.9l-17-17c-9.4-9.4-24.6-9.4-33.9 0L142.1 239c-9.4 9.4-9.4 24.6 0 34z"/>`;
+
+const rightArrowString = `<path d="M256 8c137 0 248 111 248 248S393 504 256 504 8 393 8 256 119 8 256 8zm113.9 231L234.4 103.5c-9.4-9.4-24.6-9.4-33.9 0l-17 17c-9.4 9.4-9.4 24.6 0 33.9L285.1 256 183.5 357.6c-9.4 9.4-9.4 24.6 0 33.9l17 17c9.4 9.4 24.6 9.4 33.9 0L369.9 273c9.4-9.4 9.4-24.6 0-34z"/>`;
+
 function pNumStr2eInt(s) {
   const eStr = s.replace(/[۰-۹]/g, (d) => "۰۱۲۳۴۵۶۷۸۹".indexOf(d));
   return parseInt(eStr);
@@ -106,19 +110,36 @@ function addNulls(dayArr, locale, week) {
 }
 
 function createMonthChanger(date, locale, parent, dateHandler) {
+  const preArrow = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "svg"
+  );
+  preArrow.setAttribute("id", "pre-month");
+  preArrow.setAttribute("viewBox", "0 0 512 512");
+
+  const nextArrow = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "svg"
+  );
+  nextArrow.setAttribute("id", "next-month");
+  nextArrow.setAttribute("viewBox", "0 0 512 512");
+
+  const currentMonth = document.createElement("h3");
+  const monthChangerContainer = document.createElement("div");
+  monthChangerContainer.classList.add("month-changer");
   const newDate = new Date(date);
   const changerString = date.toLocaleDateString(locale, {
     month: "long",
     year: "numeric",
   });
 
-  const monthChangerContainer = document.createElement("div");
-  monthChangerContainer.classList.add("month-changer");
+  preArrow.innerHTML = leftArrowString;
+  nextArrow.innerHTML = rightArrowString;
+  currentMonth.innerText = changerString;
 
-  monthChangerContainer.innerHTML = `
-  <img id="pre-month" src="public/back-p.png" style="width:30px; height:30px">
-  <h3>${changerString}</h3>
-  <img id="next-month" src="public/back-p.png" style="width:30px; height:30px">`;
+  monthChangerContainer.append(preArrow);
+  monthChangerContainer.append(currentMonth);
+  monthChangerContainer.append(nextArrow);
 
   const preMonth = monthChangerContainer.querySelector("#pre-month");
   preMonth.addEventListener("click", () => {
